@@ -1,3 +1,11 @@
+https://github.com/Apollo-Level2-Web-Dev/project-prisma-press-backend
+https://drawsql.app/teams/samin-israr-hq/diagrams/prisma-press-erd
+https://github.com/Apollo-Level2-Web-Dev/project-prisma-press-backend/blob/module-20/Prisma%20Press%20Backend%20Requirement%20Analysis.pdf
+https://github.com/saminravi99
+
+
 DATABASE_URL="postgres://d3e22c9a8e7b4fe2e636129fbf6d7795f2f457894ef4d7577a3bdfd8a77512e2:sk_k7A5KbmkN5JpCOK1avqPN@pooled.db.prisma.io:5432/postgres?sslmode=require"
 
 express,bcryptjs,cors,cookie-parser,http-status,jwt
+
+express setup-->>>docs
