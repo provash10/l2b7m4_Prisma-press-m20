@@ -1,15 +1,18 @@
 model User {
-    id String @id @default(uuid())
-    name String 
-    email String @unique
-    password String
-    activeStatus ActiveStatus @default(ACTIVE)
-    role Role @default(USER)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    profileId Profile?
+  id           String       @id @default(uuid())
+  name         String 
+  email        String       @unique
+  password     String
+  profilePhoto String?      // ← আগের এররটি সমাধান করতে এই ফিল্ডটি লাগবে
+  activeStatus ActiveStatus @default(ACTIVE)
+  role         Role         @default(USER)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  
+  // One-to-One Relation setup
+  profile      Profile?     
 
-    @@map("users")
+  @@map("users")
 }
 
 // enum ActiveStatus{
