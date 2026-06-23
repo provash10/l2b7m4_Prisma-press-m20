@@ -5,6 +5,7 @@ import config from "./config";
 import { prisma } from "./lib/prisma";
 import httpStatus from "http-status";
 import bcrypt from "bcryptjs";
+import { userRoutes } from "./modules/user/user.route";
 
 
 const app: Application = express();
@@ -30,75 +31,7 @@ app.get("/",(req: Request,res: Response)=>{
 //     res.send("Hello World !!");
 // })
 
-app.post("/api/users/register", async(req:Request, res:Response)=>{
-    // const payload =req.body;
-    // console.log(payload);
-    try {
-      const {name,email,password,profilePhoto,bio} =req.body;
-    console.log(req.body);
-    const isUserExist = await prisma.user.findUnique({
-        where : {email}
-    })
-
-    // if(isUserExist){
-    //     throw new Error("User with this email already exists");
-    // }
-    if(isUserExist){
-            return res.status(httpStatus.BAD_REQUEST).json({
-                success: false,
-                message: "User with this email already exists"
-            });
-        }
-    
-    const hashedPassword = await bcrypt.hash(password,Number(config.bcrypt_salt_rounds));
-
-    const createdUser = await prisma.user.create({
-        data:{
-            name,
-            email,
-            password : hashedPassword,
-            
-
-        }
-    })
-
-    await prisma.profile.create({
-        data:{
-            userId : createdUser.id,
-            profilePhoto,
-             bio: "" // required
-        }
-    })
-    
-
-
-    const user = await prisma.user.findUnique({
-        where:{
-            id: createdUser.id,
-            email : createdUser.email || email
-        },
-        omit:{
-          password: true,
-        },
-        include: {
-                profile: true 
-            }
-    })
-
-    res.status(httpStatus.CREATED).json({
-        success : true,
-        statusCode : httpStatus.CREATED,
-        message:"User registered successfully",
-        data : {
-            user
-        }
-    })
-    } catch (error:any) {
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: error.message || "Something went wrong!"
-        });
-    }
-})
+// app.post()
+app.use("/api/users",userRoutes)
 
 export default app;
