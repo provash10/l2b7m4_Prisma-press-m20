@@ -5,6 +5,7 @@ import httpStatus  from "http-status";
 import config from "../../config";
 import { userService } from "./user.service";
 import { catchAsync } from "../../utlis/catchAsync";
+import { sendResponse } from "../../utlis/sendResponse";
 
 
 
@@ -37,18 +38,27 @@ import { catchAsync } from "../../utlis/catchAsync";
 //     }
 // }
 
+
+
 const registerUser = catchAsync(async(req:Request, res:Response,next:NextFunction)=>{
     const payload =req.body;
  // console.log(req.body);
     const user = await userService.registerUserIntoDB(payload);
 
-    res.status(httpStatus.CREATED).json({
+    // res.status(httpStatus.CREATED).json({
+    //     success : true,
+    //     statusCode : httpStatus.CREATED,
+    //     message:"User registered successfully",
+    //     data : {
+    //         user
+    //     }
+    // })
+
+    sendResponse(res,{
         success : true,
-        statusCode : httpStatus.CREATED,
-        message:"User registered successfully",
-        data : {
-            user
-        }
+        statusCode: httpStatus.CREATED,
+        message: " User registered successfully",
+        data: {user}
     })
 })
 
