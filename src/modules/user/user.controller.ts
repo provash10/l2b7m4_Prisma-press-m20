@@ -6,6 +6,8 @@ import config from "../../config";
 import { userService } from "./user.service";
 import { catchAsync } from "../../utlis/catchAsync";
 import { sendResponse } from "../../utlis/sendResponse";
+import jwt from "jsonwebtoken";
+import { jwtUtils } from "../../utlis/jwt";
 
 
 
@@ -64,6 +66,32 @@ const registerUser = catchAsync(async(req:Request, res:Response,next:NextFunctio
 
 const getMyProfile = catchAsync(async(req:Request, res:Response,next:NextFunction)=>{
 
+    // const cookies = req.cookies;
+    // console.log(cookies);
+
+     const {accessToken} = req.cookies;
+      console.log(accessToken);
+
+    //   const verifiedToken = jwt.verify(accessToken, config.jwt_access_secret);
+    //   console.log(verifiedToken);
+
+     const verifiedToken = jwtUtils.verifyToken(accessToken, config.jwt_access_secret)
+     console.log(verifiedToken);
+
+     if(typeof verifiedToken === "string"){
+        throw new Error(verifiedToken);
+     }
+
+     const profile = await userService.getMyProfileFromDB(verifiedToken.id)
+    
+     // res.send("Get My Profile")
+
+     sendResponse(res,{
+        success :true,
+        statusCode: httpStatus.OK,
+        message : "User Profile fetched Successfully",
+        data: {profile}
+     })
 })
 
 export const userController ={

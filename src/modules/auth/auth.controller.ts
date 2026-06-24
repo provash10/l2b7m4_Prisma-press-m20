@@ -14,6 +14,7 @@ const loginUser = catchAsync(async(req: Request, res: Response, next: NextFuncti
         httpOnly: true,
         secure : false,
         sameSite: "none",
+        // sameSite: "lax",
         maxAge : 1000 * 60 * 60 *24 // 24 hours or 1 day
     })
 
@@ -21,6 +22,7 @@ const loginUser = catchAsync(async(req: Request, res: Response, next: NextFuncti
         httpOnly: true,
         secure : false,
         sameSite: "none",
+        // sameSite: "lax",
         maxAge : 1000 * 60 * 60 *24 * 7 // 7 days
     })
 
