@@ -69,20 +69,22 @@ const getMyProfile = catchAsync(async(req:Request, res:Response,next:NextFunctio
     // const cookies = req.cookies;
     // console.log(cookies);
 
-     const {accessToken} = req.cookies;
-      console.log(accessToken);
+    //  const {accessToken} = req.cookies;
+    //   console.log(accessToken);
+    // console.log(req.user, "user request");
 
     //   const verifiedToken = jwt.verify(accessToken, config.jwt_access_secret);
     //   console.log(verifiedToken);
 
-     const verifiedToken = jwtUtils.verifyToken(accessToken, config.jwt_access_secret)
-     console.log(verifiedToken);
+    //  const verifiedToken = jwtUtils.verifyToken(accessToken, config.jwt_access_secret)
+    //  console.log(verifiedToken);
 
-     if(typeof verifiedToken === "string"){
-        throw new Error(verifiedToken);
-     }
+    //  if(typeof verifiedToken === "string"){
+    //     throw new Error(verifiedToken);
+    //  }
 
-     const profile = await userService.getMyProfileFromDB(verifiedToken.id)
+    //  const profile = await userService.getMyProfileFromDB(verifiedToken.id)
+    const profile = await userService.getMyProfileFromDB(req.user?.id as string)
     
      // res.send("Get My Profile")
 
