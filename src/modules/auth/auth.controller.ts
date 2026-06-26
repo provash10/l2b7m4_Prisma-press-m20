@@ -35,6 +35,33 @@ const loginUser = catchAsync(async(req: Request, res: Response, next: NextFuncti
     });
 });
 
+const refreshToken = catchAsync(async(req: Request, res: Response, next: NextFunction)=>{
+    const refreshToken = req.cookies.refreshToken;
+
+    // const result = authService.refreshToken(refreshToken);
+     const {accessToken} =await authService.refreshToken(refreshToken);
+
+     res.cookie("accessToken",accessToken,{
+        httpOnly: true,
+        secure : false,
+        sameSite: "none",
+        // sameSite: "lax",
+        maxAge : 1000 * 60 * 60 *24 // 24 hours or 1 day
+    })
+    
+    sendResponse(res, {
+        success : true,
+        statusCode: httpStatus.OK,
+        message : "Token Refreshed Successfully",
+        // data: result
+        data: {
+            accessToken
+        }
+        
+    })
+})
+
 export const authController= {
-    loginUser
+    loginUser,
+    refreshToken,
 }
