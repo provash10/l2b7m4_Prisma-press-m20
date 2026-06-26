@@ -1,16 +1,19 @@
 model User {
   id           String       @id @default(uuid())
-  name         String 
+  name         String
   email        String       @unique
   password     String
-  profilePhoto String?      // ← আগের এররটি সমাধান করতে এই ফিল্ডটি লাগবে
+  profilePhoto String? // ← আগের এররটি সমাধান করতে এই ফিল্ডটি লাগবে
   activeStatus ActiveStatus @default(ACTIVE)
   role         Role         @default(USER)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
-  
+
   // One-to-One Relation setup
-  profile      Profile?     
+  profile Profile?
+
+  posts    Post[]
+  comments Comment[]
 
   @@map("users")
 }

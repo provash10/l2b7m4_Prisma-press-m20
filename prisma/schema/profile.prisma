@@ -13,7 +13,7 @@
 // model Profile {
 //   id     String @id @default(uuid())
 //   bio    String?
-  
+
 //   // User এর সাথে সম্পর্ক জুড়ে দেওয়ার জন্য নিচের ২টি লাইন আবশ্যক
 //   userId String @unique
 //   user   User   @relation(fields: [userId], references: [id])
@@ -26,11 +26,11 @@ model Profile {
   profilePhoto String?
   bio          String
   userId       String   @unique
-  user         User     @relation(fields : [userId], references:[id])
+  user         User     @relation(fields: [userId], references: [id])
   createdAt    DateTime @default(now())
-  
+
   // @default(now()) যোগ করা হয়েছে যাতে আগের ৫টি রো-তে এরর না আসে
-  updatedAt    DateTime @default(now()) @updatedAt 
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@map("profiles")
 }
