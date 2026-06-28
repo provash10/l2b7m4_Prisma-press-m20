@@ -1,0 +1,33 @@
+const createPost=()=>{
+
+}
+
+const getAllPosts=()=>{
+    
+}
+
+const getPostById=()=>{
+    
+}
+
+const updatePost=()=>{
+    
+}
+
+const deletePost=()=>{
+    
+}
+
+const getPostsStats=()=>{
+    
+}
+
+
+export const posService={
+    createPost,
+    getAllPosts,
+    getPostById,
+    updatePost,
+    deletePost,
+    getPostsStats
+}

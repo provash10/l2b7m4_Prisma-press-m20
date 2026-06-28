@@ -1,0 +1,21 @@
+import { NextFunction, Request, Response } from "express";
+import { catchAsync } from "../../utlis/catchAsync";
+
+const createComment = catchAsync(async(req: Request, res: Response, next:NextFunction)=>{
+
+})
+
+const getCommentByAuthorId = catchAsync(async(req: Request, res: Response, next:NextFunction)=>{
+    
+})
+
+const getCommentByCommentId= catchAsync(async(req: Request, res: Response, next:NextFunction)=>{
+    
+})
+
+
+export const commentController={
+    createComment,
+    getCommentByAuthorId,
+    getCommentByCommentId
+}

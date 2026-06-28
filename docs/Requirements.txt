@@ -1,0 +1,19 @@
+#20
+Requirement Analysis : https://github.com/Apollo-Level2-Web-Dev/project-prisma-press-backend/blob/module-20/Prisma%20Press%20Backend%20Requirement%20Analysis.pdf 
+
+Github Repo : https://github.com/Apollo-Level2-Web-Dev/project-prisma-press-backend/tree/module-20 
+
+ERD : https://drawsql.app/teams/samin-israr-hq/diagrams/prisma-press-erd
+
+#21
+Github Repo: https://github.com/Apollo-Level2-Web-Dev/project-prisma-press-backend/tree/module-21 
+
+Postman Collection: https://github.com/Apollo-Level2-Web-Dev/project-prisma-press-backend/blob/module-21/Prisma%20Press%20Backend.postman_collection.json 
+
+
+#22
+Repo: https://github.com/Apollo-Level2-Web-Dev/project-prisma-press-backend/tree/module-22 
+
+Updated Postman Collection: https://github.com/Apollo-Level2-Web-Dev/project-prisma-press-backend/blob/module-22/Prisma%20Press%20Backend.postman_collection.json 
+
+Task: https://github.com/Apollo-Level2-Web-Dev/project-prisma-press-backend/blob/module-22/Module-22-Task.MD 

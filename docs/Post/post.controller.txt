@@ -1,0 +1,24 @@
+import { NextFunction, Request, Response } from "express";
+import { catchAsync } from "../../utlis/catchAsync";
+
+const createPost = catchAsync(async(req:Request, res:Response, next:NextFunction)=>{
+
+})
+
+const getAllPosts = catchAsync(async(req:Request, res:Response, next:NextFunction)=>{
+
+})
+
+const getPostById = catchAsync(async(req:Request, res:Response, next:NextFunction)=>{
+
+})
+
+export const postController ={
+    createPost,
+    getAllPosts,
+    getPostById,
+    updatePost,
+    deletePost,
+    getPostsStats,
+    getMyPosts
+}
