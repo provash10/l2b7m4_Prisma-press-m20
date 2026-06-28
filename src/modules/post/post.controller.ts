@@ -36,7 +36,22 @@ const getAllPosts = catchAsync(
 );
 
 const getPostById = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {}
+  async (req: Request, res: Response, next: NextFunction) => {
+    const postId = req.params.postId;
+
+    if(!postId){
+        throw new Error("Post Id Required In Params");
+    }
+
+    const result = await postService.getPostById(postId as string)
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "Post Retrieved Successfully",
+      data: result,
+    });
+  }
 );
 
 const updatePost = catchAsync(
@@ -52,7 +67,19 @@ const getPostsStats = catchAsync(
 );
 
 const getMyPosts = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {}
+  async (req: Request, res: Response, next: NextFunction) => {
+    const authorId = req.user?.id;
+
+    const result = await postService.getMyPosts(authorId as string);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "My Posts Retrieved Successfully",
+      data: result,
+    });
+
+  }
 );
 
 export const postController = {
