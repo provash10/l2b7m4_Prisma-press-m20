@@ -13,7 +13,9 @@ router.post(
 
 router.get("/author/:authorId", commentController.getCommentByAuthorId);
 
-router.get("/:commentId", commentController.getCommentByCommentId);
+router.get("/:postId", commentController.getCommentByPostId)
+
+// router.get("/:commentId", commentController.getCommentByCommentId);
 
 router.patch(
   "/:commentId",
@@ -27,7 +29,7 @@ router.delete(
   commentController.deleteComment
 );
 
-router.patch(
+router.put(
   "/:commentId/moderate",
   auth(Role.ADMIN),
   commentController.moderateComment
