@@ -1,5 +1,11 @@
 import cookieParser from "cookie-parser";
-import express, { Application, Request, Response } from "express";
+import express, {
+  Application,
+  ErrorRequestHandler,
+  NextFunction,
+  Request,
+  Response,
+} from "express";
 import cors from "cors";
 import config from "./config";
 import { prisma } from "./lib/prisma";
@@ -39,5 +45,27 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
+
+app.use((req: Request, res: Response) => {
+  res.status(httpStatus.NOT_FOUND).json({
+    success: false,
+    statusCode: httpStatus.NOT_FOUND,
+    message: "Route not found",
+    data: null,
+  });
+});
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  const statusCode = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
+  const message = err.message || "Something went wrong";
+
+  res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+    error: err.message,
+    stack: process.env.NODE_ENV !== "production" ? err.stack : undefined,
+  });
+});
 
 export default app;

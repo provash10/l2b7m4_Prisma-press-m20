@@ -16,9 +16,9 @@ const getAllPosts = async () => {
   const posts = await prisma.post.findMany({
     include: {
       author: {
-        omit:{
-            password: true,
-        }
+        omit: {
+          password: true,
+        },
       },
       comments: true,
     },
@@ -27,127 +27,174 @@ const getAllPosts = async () => {
   return posts;
 };
 
-const getPostById = async(postId : string) => {
-  
+const getPostById = async (postId: string) => {
+  // await prisma.post.update({
+  //     where:{
+  //         id : postId,
+  //     },
+  //     data:{
+  //         views :{
+  //             increment :1
+  //         },
+  //     },
 
-    await prisma.post.update({
-        where:{
-            id : postId,
-        },
-        data:{
-            views :{
-                increment :1
-            },
-        },
-        
-    })
+  // })
 
-    // throw new Error("Fake Error")
+  // throw new Error("Fake Error")
 
-    const post = await prisma.post.findFirstOrThrow({
-      where:{
-        id : postId,
+  // const post = await prisma.post.findFirstOrThrow({
+  //   where: {
+  //     id: postId,
+  //   },
+  //   include: {
+  //     author: {
+  //       omit: {
+  //         password: true,
+  //       },
+  //     },
+  //     comments: {
+  //       where: {
+  //         status: CommentStatus.APPROVED,
+  //       },
+  //       orderBy: {
+  //         createdAt: "desc",
+  //       },
+  //     },
+  //     _count: {
+  //       select: {
+  //         comments: true,
+  //       },
+  //     },
+  //   },
+  // });
+
+  // return post;  //no need
+  // return updatedPost;  //no need
+
+  const transactionResult = await prisma.$transaction(async (tx) => {
+    await tx.post.update({
+      where: {
+        id: postId,
       },
-      include :{
-        author : {
-          omit:{
-            password : true,
-          }
+      data: {
+        views: {
+          increment: 1,
         },
-        comments : {
-          where :{
-            status : CommentStatus.APPROVED,
+      },
+    });
+
+    throw new Error("Fake Error") 
+    const post = await tx.post.findFirstOrThrow({
+      where: {
+        id: postId,
+      },
+      include: {
+        author: {
+          omit: {
+            password: true,
           },
-          orderBy : {
-            createdAt : "desc"
-          }
         },
-        _count : {
-          select : {
-            comments : true,
-          }
+        comments: {
+          where: {
+            status: CommentStatus.APPROVED,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+          },
         },
       },
-
-    })
+    });
 
     return post;
-    // return updatedPost;
+  });
+
+  return transactionResult;
 };
 
 //update post
+const updatePost = async (
+  postId: string,
+  payload: IUpdatePostPayload,
+  authorId: string,
+  isAdmin: boolean
+) => {
+  const post = await prisma.post.findFirstOrThrow({
+    where: {
+      id: postId,
+    },
+  });
 
-const updatePost = async(postId: string, payload : IUpdatePostPayload, authorId : string, isAdmin: boolean) => {
-  const post =await prisma.post.findFirstOrThrow({
-    where :{
-      id : postId
-    }
-  })
-
-  if(!isAdmin && post.authorId !== authorId){
-    throw new Error("You are not the Owner of this post")
+  if (!isAdmin && post.authorId !== authorId) {
+    throw new Error("You are not the Owner of this post");
   }
 
   const result = await prisma.post.update({
-    where :{
-      id: postId
+    where: {
+      id: postId,
     },
-    data : payload
-  })
+    data: payload,
+  });
 
   return result;
 };
 
-const deletePost = async(postId: string, authorId : string, isAdmin: boolean) => {
-  const post =await prisma.post.findFirstOrThrow({
-    where :{
-      id : postId
-    }
-  })
+const deletePost = async (
+  postId: string,
+  authorId: string,
+  isAdmin: boolean
+) => {
+  const post = await prisma.post.findFirstOrThrow({
+    where: {
+      id: postId,
+    },
+  });
 
-  if(!isAdmin && post.authorId !== authorId){
-    throw new Error("You are not the Owner of this post")
+  if (!isAdmin && post.authorId !== authorId) {
+    throw new Error("You are not the Owner of this post");
   }
 
   const result = await prisma.post.delete({
-    where : {
-      id: postId
-    }
-  })
+    where: {
+      id: postId,
+    },
+  });
 
   return result;
   // return null;
 };
 
-const getPostsStats = () => {
-};
+const getPostsStats = () => {};
 
-const getMyPosts=async(authorId : string)=>{
+const getMyPosts = async (authorId: string) => {
   const result = await prisma.post.findMany({
-    where :{
-      authorId
+    where: {
+      authorId,
     },
-    orderBy:{
-      createdAt : "desc",
+    orderBy: {
+      createdAt: "desc",
     },
-    include :{
+    include: {
       comments: true,
-      author:{
-        omit:{
-          password : true,
-        }
+      author: {
+        omit: {
+          password: true,
+        },
       },
-      _count : {
-        select :{
-          comments : true,
-        }
+      _count: {
+        select: {
+          comments: true,
+        },
       },
-
     },
-  })
+  });
 
   return result;
-}
+};
 
 export const postService = {
   createPost,
@@ -156,5 +203,5 @@ export const postService = {
   updatePost,
   deletePost,
   getPostsStats,
-  getMyPosts
+  getMyPosts,
 };

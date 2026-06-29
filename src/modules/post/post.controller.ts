@@ -4,7 +4,6 @@ import { postService } from "./post.service";
 import { sendResponse } from "../../utlis/sendResponse";
 import httpStatus from "http-status";
 
-
 const createPost = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const id = req.user?.id;
@@ -24,12 +23,12 @@ const createPost = catchAsync(
 
 const getAllPosts = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result =await postService.getAllPosts();
+    const result = await postService.getAllPosts();
 
     sendResponse(res, {
       success: true,
-      statusCode: httpStatus.CREATED,
-      message: "Post Retrived Successfully",
+      statusCode: httpStatus.OK,
+      message: "Posts Retrieved Successfully",
       data: result,
     });
   }
@@ -39,15 +38,15 @@ const getPostById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const postId = req.params.postId;
 
-    if(!postId){
-        throw new Error("Post Id Required In Params");
+    if (!postId) {
+      throw new Error("Post Id Required In Params");
     }
 
-    const result = await postService.getPostById(postId as string)
+    const result = await postService.getPostById(postId as string);
 
     sendResponse(res, {
       success: true,
-      statusCode: httpStatus.CREATED,
+      statusCode: httpStatus.OK,
       message: "Post Retrieved Successfully",
       data: result,
     });
@@ -60,18 +59,23 @@ const updatePost = catchAsync(
     const isAdmin = req.user?.role === "ADMIN";
 
     const postId = req.params.postId;
-    if(!postId){
-        throw new Error("Post Id Required In Params");
+    if (!postId) {
+      throw new Error("Post Id Required In Params");
     }
 
     const payload = req.body;
 
-    const result = await postService.updatePost(postId as string, payload, authorId as string, isAdmin)
+    const result = await postService.updatePost(
+      postId as string,
+      payload,
+      authorId as string,
+      isAdmin
+    );
 
     sendResponse(res, {
       success: true,
-      statusCode: httpStatus.CREATED,
-      message: "Post Update Successfully",
+      statusCode: httpStatus.OK,
+      message: "Post Updated Successfully",
       data: result,
     });
   }
@@ -83,17 +87,20 @@ const deletePost = catchAsync(
     const isAdmin = req.user?.role === "ADMIN";
 
     const postId = req.params.postId;
-    if(!postId){
-        throw new Error("Post Id Required In Params");
+    if (!postId) {
+      throw new Error("Post Id Required In Params");
     }
-  
-    const result = await postService.deletePost(postId as string, authorId as string, isAdmin)
+
+    const result = await postService.deletePost(
+      postId as string,
+      authorId as string,
+      isAdmin
+    );
 
     sendResponse(res, {
       success: true,
-      statusCode: httpStatus.CREATED,
+      statusCode: httpStatus.OK,
       message: "Post Deleted Successfully",
-      // data: result,
       data: null,
     });
   }
@@ -111,11 +118,10 @@ const getMyPosts = catchAsync(
 
     sendResponse(res, {
       success: true,
-      statusCode: httpStatus.CREATED,
+      statusCode: httpStatus.OK,
       message: "My Posts Retrieved Successfully",
       data: result,
     });
-
   }
 );
 
