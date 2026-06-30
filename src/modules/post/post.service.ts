@@ -14,6 +14,28 @@ const createPost = async (payload: ICreatePostPayload, userId: string) => {
 
 const getAllPosts = async () => {
   const posts = await prisma.post.findMany({
+    //Filtering
+    // where : {
+    //   title : "My First Post",
+    //   content: "Messi"
+    // },
+
+    where: {
+      AND: [
+        {
+          title: "My First Post",
+        },
+        {
+          content: "Messi",
+        },
+        {
+          tags: {
+            equals: ["typescript", "prisma", "express"],
+          },
+        },
+      ],
+    },
+
     include: {
       author: {
         omit: {
@@ -167,138 +189,133 @@ const deletePost = async (
   // return null;
 };
 
-const getPostsStats = 
-async() => {
-  const transactionResult= await prisma.$transaction(
-    async(tx) =>{
-      // const totalPosts = await tx.post.count();
+const getPostsStats = async () => {
+  const transactionResult = await prisma.$transaction(async (tx) => {
+    // const totalPosts = await tx.post.count();
 
-      // const totalPublishedPosts =await tx.post.count({
-      //   where:{
-      //     status : PostStatus.PUBLISHED
-      //   }
-      // })
+    // const totalPublishedPosts =await tx.post.count({
+    //   where:{
+    //     status : PostStatus.PUBLISHED
+    //   }
+    // })
 
-      //  const totalDraftPosts =await tx.post.count({
-      //   where:{
-      //     status : PostStatus.DRAFT
-      //   }
-      // })
+    //  const totalDraftPosts =await tx.post.count({
+    //   where:{
+    //     status : PostStatus.DRAFT
+    //   }
+    // })
 
-      //  const totalArchivedPosts =await tx.post.count({
-      //   where:{
-      //     status : PostStatus.ARCHIVED
-      //   }
-      // })
+    //  const totalArchivedPosts =await tx.post.count({
+    //   where:{
+    //     status : PostStatus.ARCHIVED
+    //   }
+    // })
 
-      // const totalComments = await tx.comment.count()
+    // const totalComments = await tx.comment.count()
 
-      // const totalApprovedComments = await tx.comment.count({
-      //   where:{
-      //     status : CommentStatus.APPROVED
-      //   }
-      // })
+    // const totalApprovedComments = await tx.comment.count({
+    //   where:{
+    //     status : CommentStatus.APPROVED
+    //   }
+    // })
 
-      // const totalRejectedComments = await tx.comment.count({
-      //   where:{
-      //     status : CommentStatus.REJECT
-      //   }
-      // })
+    // const totalRejectedComments = await tx.comment.count({
+    //   where:{
+    //     status : CommentStatus.REJECT
+    //   }
+    // })
 
-      // //not a good approach
-      // // const allPosts = await tx.post.findMany();
+    // //not a good approach
+    // // const allPosts = await tx.post.findMany();
 
-      // // let totalPostViews = 0;
+    // // let totalPostViews = 0;
 
-      // // allPosts.forEach((post)=>{
-      // //   totalPostViews = totalPostViews + post.views
-      // // })
+    // // allPosts.forEach((post)=>{
+    // //   totalPostViews = totalPostViews + post.views
+    // // })
 
-      // //Good Approach
-      // const totalPostViewsAggregate = await tx.post.aggregate({
-      //   _sum : {
-      //     views : true
-      //   }
-      // })
+    // //Good Approach
+    // const totalPostViewsAggregate = await tx.post.aggregate({
+    //   _sum : {
+    //     views : true
+    //   }
+    // })
 
-      // const totalPostViews= totalPostViewsAggregate._sum.views
+    // const totalPostViews= totalPostViewsAggregate._sum.views
 
-      // return {
-      //   totalPosts,
-      //   totalPublishedPosts,
-      //   totalDraftPosts,
-      //   totalArchivedPosts,
-      //   totalComments,
-      //   totalApprovedComments,
-      //   totalRejectedComments,
-      //   totalPostViews
-      // }
+    // return {
+    //   totalPosts,
+    //   totalPublishedPosts,
+    //   totalDraftPosts,
+    //   totalArchivedPosts,
+    //   totalComments,
+    //   totalApprovedComments,
+    //   totalRejectedComments,
+    //   totalPostViews
+    // }
 
-      const [
-        totalPosts,
-        totalPublishedPosts,
-        totalDraftPosts,
-        totalArchivedPosts,
-        totalComments,
-        totalApprovedComments,
-        totalRejectedComments,
-        totalPostViews
-      ] = await Promise.all([
-        await tx.post.count(),
+    const [
+      totalPosts,
+      totalPublishedPosts,
+      totalDraftPosts,
+      totalArchivedPosts,
+      totalComments,
+      totalApprovedComments,
+      totalRejectedComments,
+      totalPostViews,
+    ] = await Promise.all([
+      await tx.post.count(),
 
-        await tx.post.count({
-        where:{
-          status : PostStatus.PUBLISHED
-        }
+      await tx.post.count({
+        where: {
+          status: PostStatus.PUBLISHED,
+        },
       }),
 
       await tx.post.count({
-        where:{
-          status : PostStatus.DRAFT
-        }
+        where: {
+          status: PostStatus.DRAFT,
+        },
       }),
 
       await tx.post.count({
-        where:{
-          status : PostStatus.ARCHIVED
-        }
+        where: {
+          status: PostStatus.ARCHIVED,
+        },
       }),
 
       await tx.comment.count(),
 
       await tx.comment.count({
-        where:{
-          status : CommentStatus.APPROVED
-        }
+        where: {
+          status: CommentStatus.APPROVED,
+        },
       }),
 
       await tx.comment.count({
-        where:{
-          status : CommentStatus.REJECT
-        }
+        where: {
+          status: CommentStatus.REJECT,
+        },
       }),
 
       await tx.post.aggregate({
-        _sum : {
-          views : true
-        }
+        _sum: {
+          views: true,
+        },
       }),
+    ]);
 
-      ])
-
-      return {
-        totalPosts,
-        totalPublishedPosts,
-        totalDraftPosts,
-        totalArchivedPosts,
-        totalComments,
-        totalApprovedComments,
-        totalRejectedComments,
-        totalPostViews: totalPostViews?._sum?.views ?? 0,
-      }
-
-    }
-  );
+    return {
+      totalPosts,
+      totalPublishedPosts,
+      totalDraftPosts,
+      totalArchivedPosts,
+      totalComments,
+      totalApprovedComments,
+      totalRejectedComments,
+      totalPostViews: totalPostViews?._sum?.views ?? 0,
+    };
+  });
 
   return transactionResult;
 };
