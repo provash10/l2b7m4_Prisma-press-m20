@@ -1,6 +1,10 @@
 import { CommentStatus, PostStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
-import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface";
+import {
+  ICreatePostPayload,
+  IPostQuery,
+  IUpdatePostPayload,
+} from "./post.interface";
 
 const createPost = async (payload: ICreatePostPayload, userId: string) => {
   const result = await prisma.post.create({
@@ -12,10 +16,18 @@ const createPost = async (payload: ICreatePostPayload, userId: string) => {
   return result;
 };
 
-const getAllPosts = async () => {
-  const posts = await prisma.post.findMany(
-    {
-    
+const getAllPosts = async (query: IPostQuery) => {
+  const limit = query.limit ? Number(query.limit) : 10;
+  const page = query.page ? Number(query.page) : 1;
+  const skip = (page - 1) * limit;
+  const sortBy = query.sortBy
+    ? query.sortBy === "CreatedAt" || query.sortBy === "createdAt"
+      ? "createdAt"
+      : query.sortBy
+    : "createdAt";
+  const sortOrder = query.sortOrder === "asc" ? "asc" : "desc";
+
+  const posts = await prisma.post.findMany({
     //Filtering / exact match without AND Operator
     // where : {
     //   title : "My First Post",
@@ -45,11 +57,11 @@ const getAllPosts = async () => {
     //     contains : "Messi",
     //     mode : "insensitive"
     //   },
-      
-      //not ideal for partial match
-      // content : {
-      //   contains : "Messi"
-      // }
+
+    //not ideal for partial match
+    // content : {
+    //   contains : "Messi"
+    // }
     // },
 
     //searching / partial search with OR Operator
@@ -71,58 +83,96 @@ const getAllPosts = async () => {
     //   ]
     // },
 
-
     //Combining Search(OR) & filtering(AND)
-    where : {
-      //filtering & searching combined
-      AND : [
-        {
-          //searching
-          OR : [
-            {
-              title : {
-                contains : "Messi",
-                mode: "insensitive"
-              }
-            },
+    // where : {
+    //   //filtering & searching combined
+    //   AND : [
+    //     {
+    //       //searching
+    //       OR : [
+    //         {
+    //           title : {
+    //             contains : "Messi",
+    //             mode: "insensitive"
+    //           }
+    //         },
 
-            {
-              content : {
-                contains : "Messi",
-                mode : "insensitive"
-              }
-            }
-          ]
-        },
+    //         {
+    //           content : {
+    //             contains : "Messi",
+    //             mode : "insensitive"
+    //           }
+    //         }
+    //       ]
+    //     },
 
-        //filtering
-        {
-          title : "Leonel Messi"
-        },
-        {
-          content : "Messi"
-        }
-      ]
-    },
+    //     //filtering
+    //     {
+    //       title : "Leonel Messi"
+    //     },
+    //     {
+    //       content : "Messi"
+    //     }
+    //   ]
+    // },
 
-    //Pagination 
-    take : 1,
-    //take : 2, 
+    //Pagination with (limit or take) and (skip or page)
+    // take : 1,
+    //take : 2,
     //for first page skip is 0
     //skip : 1, // visiting page 2
     //skip : 2, // visiting page 3
-    skip : 3, // visiting page 4
+    // skip : 3, // visiting page 4
     //page = 4, limit /take =1 =>skip:(page-1) * limit=>
     //page = 3, limit / take =10 => skip :(page-1) * limit = (3-1) *10
-    
-    //Sorting 
-    orderBy :{
-      createdAt : "desc",
-      title : "asc",
-      content : "desc"
-      //fieldName : asc/desc
+
+    //Sorting
+    // orderBy :{
+    //   createdAt : "desc",
+    //   title : "asc",
+    //   content : "desc"
+    //   //fieldName : asc/desc
+    // },
+
+    where: {
+      AND: [
+        query.searchTerm
+          ? {
+              OR: [
+                {
+                  title: {
+                    contains: query.searchTerm,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  content: {
+                    contains: query.searchTerm,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            }
+          : {},
+
+        //title filtering
+        // {
+        //   title : query.title
+        // },
+        query.title ? { title: query.title } : {},
+
+        //content filtering
+        query.content ? { content: query.content } : {},
+      ],
     },
 
+    take: limit, // chack in- up variable
+    skip: skip, // chack in- up variable
+
+    orderBy: {
+      // sortBy : sortOrder // chack in- up variable
+      [sortBy]: sortOrder,
+    },
 
     include: {
       author: {
