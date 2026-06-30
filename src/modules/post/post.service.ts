@@ -105,6 +105,25 @@ const getAllPosts = async () => {
       ]
     },
 
+    //Pagination 
+    take : 1,
+    //take : 2, 
+    //for first page skip is 0
+    //skip : 1, // visiting page 2
+    //skip : 2, // visiting page 3
+    skip : 3, // visiting page 4
+    //page = 4, limit /take =1 =>skip:(page-1) * limit=>
+    //page = 3, limit / take =10 => skip :(page-1) * limit = (3-1) *10
+    
+    //Sorting 
+    orderBy :{
+      createdAt : "desc",
+      title : "asc",
+      content : "desc"
+      //fieldName : asc/desc
+    },
+
+
     include: {
       author: {
         omit: {
