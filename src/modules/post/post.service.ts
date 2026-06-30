@@ -13,27 +13,96 @@ const createPost = async (payload: ICreatePostPayload, userId: string) => {
 };
 
 const getAllPosts = async () => {
-  const posts = await prisma.post.findMany({
-    //Filtering
+  const posts = await prisma.post.findMany(
+    {
+    
+    //Filtering / exact match without AND Operator
     // where : {
     //   title : "My First Post",
     //   content: "Messi"
     // },
 
-    where: {
-      AND: [
+    //Filtering / exact match with AND Operator
+    // where: {
+    //   AND: [
+    //     {
+    //       title: "My First Post",
+    //     },
+    //     {
+    //       content: "Messi",
+    //     },
+    //     {
+    //       tags: {
+    //         equals: ["typescript", "prisma", "express"],
+    //       },
+    //     },
+    //   ],
+    // },
+
+    //Searching /partial match
+    // where :{
+    //   title :{
+    //     contains : "Messi",
+    //     mode : "insensitive"
+    //   },
+      
+      //not ideal for partial match
+      // content : {
+      //   contains : "Messi"
+      // }
+    // },
+
+    //searching / partial search with OR Operator
+    // where : {
+    //   OR : [
+    //     {
+    //       title : {
+    //         contains: "Messi",
+    //         mode: "insensitive"
+    //       }
+    //     },
+
+    //     {
+    //       content : {
+    //         contains : "Messi",
+    //         mode: "insensitive"
+    //       }
+    //     }
+    //   ]
+    // },
+
+
+    //Combining Search(OR) & filtering(AND)
+    where : {
+      //filtering & searching combined
+      AND : [
         {
-          title: "My First Post",
+          //searching
+          OR : [
+            {
+              title : {
+                contains : "Messi",
+                mode: "insensitive"
+              }
+            },
+
+            {
+              content : {
+                contains : "Messi",
+                mode : "insensitive"
+              }
+            }
+          ]
+        },
+
+        //filtering
+        {
+          title : "Leonel Messi"
         },
         {
-          content: "Messi",
-        },
-        {
-          tags: {
-            equals: ["typescript", "prisma", "express"],
-          },
-        },
-      ],
+          content : "Messi"
+        }
+      ]
     },
 
     include: {
