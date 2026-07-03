@@ -15,6 +15,8 @@ import { userRoutes } from "./modules/user/user.route";
 import { authRoutes } from "./modules/auth/auth.routes";
 import { postRoutes } from "./modules/post/post.route";
 import { commentRoutes } from "./modules/comment/comment.route";
+import { notFound } from "./middlewares/notFound";
+import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 
 const app: Application = express();
 
@@ -46,26 +48,30 @@ app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 
-app.use((req: Request, res: Response) => {
-  res.status(httpStatus.NOT_FOUND).json({
-    success: false,
-    statusCode: httpStatus.NOT_FOUND,
-    message: "Route not found",
-    data: null,
-  });
-});
+// app.use((req: Request, res: Response) => {
+//   res.status(httpStatus.NOT_FOUND).json({
+//     success: false,
+//     statusCode: httpStatus.NOT_FOUND,
+//     message: "Route not found",
+//     data: null,
+//   });
+// });
+app.use(notFound);
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  const statusCode = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
-  const message = err.message || "Something went wrong";
+// app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+//   // const statusCode = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
+//   // const message = err.message || "Something went wrong";
 
-  res.status(statusCode).json({
-    success: false,
-    statusCode,
-    message,
-    error: err.message,
-    stack: process.env.NODE_ENV !== "production" ? err.stack : undefined,
-  });
-});
+//   console.log(err)
+//   res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+//                 success : false,
+//                 statusCode:httpStatus.INTERNAL_SERVER_ERROR,
+//                 message:err.message,
+//                 error: err
+// });
+
+// })
+
+app.use(globalErrorHandler)
 
 export default app;

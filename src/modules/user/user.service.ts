@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import httpStatus  from "http-status";
 import config from "../../config";
 import { RegisterUserPayload } from "./user.interface";
-
+import { AppError } from "../../errors/AppError";
 
 
 const registerUserIntoDB = async(payload:RegisterUserPayload)=>{
@@ -17,7 +17,7 @@ const registerUserIntoDB = async(payload:RegisterUserPayload)=>{
     //     throw new Error("User with this email already exists");
     // }
     if(isUserExist){
-        throw new Error("User with this email already exists");
+        throw new AppError(httpStatus.CONFLICT, "User with this email already exists");
     }
     
     const hashedPassword = await bcrypt.hash(password,Number(config.bcrypt_salt_rounds));
