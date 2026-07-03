@@ -1,4 +1,5 @@
 import { CommentStatus, PostStatus } from "../../../generated/prisma/enums";
+import { PostWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
 import {
   ICreatePostPayload,
@@ -17,6 +18,7 @@ const createPost = async (payload: ICreatePostPayload, userId: string) => {
 };
 
 const getAllPosts = async (query: IPostQuery) => {
+
   const limit = query.limit ? Number(query.limit) : 10;
   const page = query.page ? Number(query.page) : 1;
   const skip = (page - 1) * limit;
@@ -26,6 +28,66 @@ const getAllPosts = async (query: IPostQuery) => {
       : query.sortBy
     : "createdAt";
   const sortOrder = query.sortOrder === "asc" ? "asc" : "desc";
+  
+  const andConditions: PostWhereInput[] = [];
+  const tags = query.tags ? JSON.parse(query.tags as string) : null;
+  const tagsArray = Array.isArray(tags) ? tags : [];
+  console.log(tagsArray,"tagsArray")
+
+  if (query.searchTerm) {
+    andConditions.push({
+      OR: [
+        {
+          title: {
+            contains: query.searchTerm,
+            mode: "insensitive",
+          },
+        },
+        {
+          content: {
+            contains: query.searchTerm,
+            mode: "insensitive",
+          },
+        },
+      ],
+    });
+  }
+  if (query.title) {
+    andConditions.push({
+      title: {
+        contains: query.title as string,
+        mode: "insensitive",
+      },
+    });
+  }
+  if (query.content) {
+    andConditions.push({
+      content: query.content,
+    });
+  }
+  if (query.authorId) {
+    andConditions.push({
+      authorId: query.authorId,
+    });
+  }
+  if (query.isFeatured) {
+    andConditions.push({
+      isFeatured: Boolean(query.isFeatured),
+    });
+  }
+  if (query.tags) {
+    andConditions.push({
+      tags : {
+        hasSome : tagsArray
+      }
+    });
+  }
+
+  if(query.status){
+    andConditions.push({
+      status : query.status
+    })
+  }
 
   const posts = await prisma.post.findMany({
     //Filtering / exact match without AND Operator
@@ -134,38 +196,51 @@ const getAllPosts = async (query: IPostQuery) => {
     //   //fieldName : asc/desc
     // },
 
+    //dynamic searcing, filtering
+    // where: {
+    //   AND: [
+    //     query.searchTerm
+    //       ? {
+    //           OR: [
+    //             {
+    //               title: {
+    //                 contains: query.searchTerm,
+    //                 mode: "insensitive",
+    //               },
+    //             },
+    //             {
+    //               content: {
+    //                 contains: query.searchTerm,
+    //                 mode: "insensitive",
+    //               },
+    //             },
+    //           ],
+    //         }
+    //       : {},
+
+    //     //title filtering
+    //     // {
+    //     //   title : query.title
+    //     // },
+    //     query.title ? { title: query.title } : {},
+
+    //     //content filtering
+    //     query.content ? { content: query.content } : {},
+
+    // {
+    //   tags : {
+    //     hasSome
+    //   }
+    // },
+
+    //   ],
+    // },
+
     where: {
-      AND: [
-        query.searchTerm
-          ? {
-              OR: [
-                {
-                  title: {
-                    contains: query.searchTerm,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  content: {
-                    contains: query.searchTerm,
-                    mode: "insensitive",
-                  },
-                },
-              ],
-            }
-          : {},
-
-        //title filtering
-        // {
-        //   title : query.title
-        // },
-        query.title ? { title: query.title } : {},
-
-        //content filtering
-        query.content ? { content: query.content } : {},
-      ],
+      AND: andConditions,
     },
 
+    //dynamic pagination,sorting
     take: limit, // chack in- up variable
     skip: skip, // chack in- up variable
 
