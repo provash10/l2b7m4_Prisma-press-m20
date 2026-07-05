@@ -220,7 +220,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"title\": \"My fourth Post\",\r\n  \"content\": \"Content of the post goes here.\",\r\n  \"thumbnail\": \"https://example.com/thumbnail.jpg\",\r\n  \"isFeatured\": false,\r\n  \"status\": \"PUBLISHED\",\r\n  \"tags\": [\"typescript\", \"prisma\", \"express\"]\r\n}",
+              "raw": "{\r\n  \"title\": \"My fifth Post\",\r\n  \"content\": \"Content of the post goes here.\",\r\n  \"thumbnail\": \"https://example.com/thumbnail.jpg\",\r\n  \"isFeatured\": false,\r\n  \"status\": \"PUBLISHED\",\r\n  \"tags\": [\"typescript\", \"prisma\", \"express\"]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -255,7 +255,7 @@
               "raw": "{\r\n  \"title\": \"My Second Post\",\r\n  \"content\": \"Content of the post goes here.\",\r\n  \"thumbnail\": \"https://example.com/thumbnail.jpg\",\r\n  \"isFeatured\": false,\r\n  \"status\": \"PUBLISHED\",\r\n  \"tags\": [\"typescript\", \"prisma\", \"express\"]\r\n}"
             },
             "url": {
-              "raw": "http://localhost:5000/api/posts",
+              "raw": "http://localhost:5000/api/blogs",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -263,7 +263,40 @@
               "port": "5000",
               "path": [
                 "api",
-                "posts"
+                "blogs"
+              ],
+              "query": [
+                {
+                  "key": "content",
+                  "value": "Messi",
+                  "disabled": true
+                },
+                {
+                  "key": "searchTerm",
+                  "value": "Messi",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "2",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "disabled": true
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc",
+                  "description": "asc / desc",
+                  "disabled": true
+                }
               ]
             }
           },
@@ -412,8 +445,108 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "New Request",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"My Second Post\",\r\n  \"content\": \"Content of the post goes here.\",\r\n  \"thumbnail\": \"https://example.com/thumbnail.jpg\",\r\n  \"isFeatured\": false,\r\n  \"status\": \"PUBLISHED\",\r\n  \"tags\": [\"typescript\", \"prisma\", \"express\"]\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/posts/comment/author",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "posts",
+                "comment",
+                "author"
+              ],
+              "query": [
+                {
+                  "key": "content",
+                  "value": "Messi",
+                  "disabled": true
+                },
+                {
+                  "key": "searchTerm",
+                  "value": "Messi",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "2",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "disabled": true
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc",
+                  "description": "asc / desc",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Create Comment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"postId\": \"84fd2a22-d836-480a-87ba-403c724dbe77\",\r\n  \"authorId\" :\"e14e0326-c81a-4b65-98ff-d67752f2e0da\",\r\n  \"content\": \"My third comment\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/comments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "New Folder",
+      "item": []
     }
   ],
   "variable": [
