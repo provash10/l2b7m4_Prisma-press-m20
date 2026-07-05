@@ -1,0 +1,5 @@
+package.json 
+ "stripe:webhook" : "stripe listen --forward-to localhost:5000/api/subscription/webhook",
+
+npm run stripe:webhook
+whsec_254cdd51f9043fbe0a4f88804fe04eeaffde1bbd3f545f5758149bb4e9003f41
