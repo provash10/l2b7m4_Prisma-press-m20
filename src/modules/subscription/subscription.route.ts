@@ -9,6 +9,8 @@ router.post("/checkout",
     auth(Role.USER,Role.AUTHOR,Role.ADMIN),
      subscriptionController.createCheckoutSession)
 
+router.get("/test-retrieve/:id", subscriptionController.testRetrieveSubscription);
+
 router.post("/webhook",subscriptionController.handleWebBook);
 
 

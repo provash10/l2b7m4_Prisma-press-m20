@@ -1,3 +1,4 @@
+import Stripe from "stripe";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { stripe } from "../../lib/stripe";
@@ -43,6 +44,15 @@ const createCheckoutSession = async (userId: string) => {
         metadata: {userId : user.id}
     })
 
+    console.log("Created Checkout Session Details:", {
+      id: session.id,
+      customer: session.customer,
+      payment_status: session.payment_status,
+      url: session.url,
+      amount_total: session.amount_total,
+      currency: session.currency
+    });
+
     return session.url
 
   });
@@ -63,10 +73,33 @@ const handleWebhook =async(payload : Buffer, signature : string)=>{
 
   // Handle the event
   switch (event.type) {
-    case 'checkout.session.completed':
-      // const paymentObject = event.data.object;
-      
+    case 'checkout.session.completed': {
+     
+      await handleCheckoutCompleted(event.data.object)
+
+      // if (userId && stripeCustomerId && subscriptionId) {
+      //   const subscriptionDetails = await stripe.subscriptions.retrieve(subscriptionId);
+      //   const currentPeriodEnd = new Date((subscriptionDetails as any).current_period_end * 1000);
+
+      //   await prisma.subscription.upsert({
+      //     where: { userId },
+      //     update: {
+      //       stripeCustomerId: stripeCustomerId as string,
+      //       currentPeriodEnd,
+      //       status: "ACTIVE",
+      //     },
+      //     create: {
+      //       userId,
+      //       stripeCustomerId: stripeCustomerId as string,
+      //       currentPeriodEnd,
+      //       status: "ACTIVE",
+      //     },
+      //   });
+
+      //   console.log(`[Stripe Webhook] Subscription successfully created/updated in DB for user: ${userId}`);
+      // }
       break;
+    }
     case 'customer.subscription.updated':
       // const paymentObject = event.data.object;
       // Then define and call a method to handle the successful attachment of a PaymentMethod.
@@ -86,9 +119,64 @@ const handleWebhook =async(payload : Buffer, signature : string)=>{
 
 }
 
+const testRetrieve = async (subscriptionId: string) => {
+  const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+  console.log("sub info from test route:", stripeSubscription);
+  return stripeSubscription;
+};
+
+const getPeriodEnd = (payload : Stripe.Subscription) =>{
+     const currentPeriodEndInMiliseconds = payload.items.data[0]?.current_period_end!
+
+      const currentPeriodEnd = new Date(currentPeriodEndInMiliseconds * 1000) 
+      console.log(currentPeriodEnd, "End")
+      return currentPeriodEnd;
+}
+
+const handleCheckoutCompleted = async (session : Stripe.Checkout.Session)=>{
+  //  console.log(event.data.object);
+      // const session : Stripe.Checkout.Session = event.data.object
+      const userId = session.metadata?.userId;
+      const stripeCustomerId = session.customer;
+      const stripeSubscriptionId = session.subscription as string;
+      
+      if(!userId || !stripeSubscriptionId || !stripeCustomerId){
+        throw new Error("Webhook Failed")
+      }
+
+      const stripeSubscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+      console.log("sub info", stripeSubscription.items.data[0]);
+      // const currentPeriodStart = stripeSubscription.items.data[0]?.current_period_start
+
+      // const currentPeriodEndInMiliseconds = stripeSubscription.items.data[0]?.current_period_end!
+
+      // const currentPeriodEnd = new Date(currentPeriodEndInMiliseconds * 1000) 
+      // console.log(currentPeriodEnd, "End")
+
+      const currentPeriodEnd = getPeriodEnd(stripeSubscription)
+      
+       await prisma.subscription.upsert({
+          where: { userId },
+          update: {
+            stripeCustomerId: stripeCustomerId as string,
+            stripeSubscriptionId,
+            currentPeriodEnd,
+            status: "ACTIVE",
+          },
+          create: {
+            userId,
+            stripeCustomerId: stripeCustomerId as string,
+            stripeSubscriptionId,
+            currentPeriodEnd,
+            status: "ACTIVE",
+          },
+        });
+}
+
 export const subscriptionService = {
   createCheckoutSession,
-  handleWebhook
+  handleWebhook,
+  testRetrieve
 };
 
 

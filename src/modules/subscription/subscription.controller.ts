@@ -36,7 +36,22 @@ const handleWebBook = catchAsync(
     }
 )
 
+const testRetrieveSubscription = catchAsync(
+    async(req: Request, res: Response, next: NextFunction) =>{
+        const subscriptionId = req.params.id as string;
+        const result = await subscriptionService.testRetrieve(subscriptionId);
+
+        sendResponse(res, {
+            success : true,
+            statusCode: httpStatus.OK,
+            message : "Subscription Retrieved Successfully",
+            data: result
+        })
+    }
+)
+
 export const subscriptionController = {
     createCheckoutSession,
-    handleWebBook
+    handleWebBook,
+    testRetrieveSubscription
 }
