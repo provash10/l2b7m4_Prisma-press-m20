@@ -1,0 +1,210 @@
+# GearUp - Database ERD Schema Details
+=========================================
+
+This document describes the database schema, tables, fields, data types, and relationships for the **GearUp** Sports & Outdoor Gear Rental Service.
+
+---
+
+## 1. Table Schema Definitions
+
+### Users
+Stores information for all actors in the platform (Customers, Providers, Admins).
+* `id` (UUID, Primary Key) - Unique identifier for each user.
+* `name` (VARCHAR(100)) - Full name of the user.
+* `email` (VARCHAR(100), Unique) - Email address used for authentication.
+* `password` (VARCHAR(255)) - Hashed password.
+* `role` (ENUM('CUSTOMER', 'PROVIDER', 'ADMIN')) - User access role.
+* `status` (ENUM('ACTIVE', 'SUSPENDED')) - Current status of the user account.
+* `createdAt` (TIMESTAMP) - Account creation timestamp.
+* `updatedAt` (TIMESTAMP) - Last profile update timestamp.
+
+### Categories
+Categories of sports and outdoor gear (e.g., cycling, camping, fitness, water sports).
+* `id` (INT, Primary Key, Auto Increment) - Unique identifier.
+* `name` (VARCHAR(50), Unique) - Name of the category.
+* `description` (TEXT, Nullable) - Brief description of what this category covers.
+* `createdAt` (TIMESTAMP)
+* `updatedAt` (TIMESTAMP)
+
+### GearItems
+The sports and outdoor gear available for rent, owned/provided by Providers.
+* `id` (UUID, Primary Key) - Unique identifier.
+* `providerId` (UUID, Foreign Key -> Users.id) - The provider who owns this item.
+* `categoryId` (INT, Foreign Key -> Categories.id) - Category this gear belongs to.
+* `name` (VARCHAR(150)) - Title/name of the gear.
+* `description` (TEXT) - Detailed description and specifications.
+* `pricePerDay` (DECIMAL(10, 2)) - Rental cost per day.
+* `brand` (VARCHAR(100)) - Brand of the gear.
+* `stock` (INT) - Total quantity available in inventory.
+* `imageUrl` (VARCHAR(255), Nullable) - Link to the item's image.
+* `isAvailable` (BOOLEAN) - Status to quickly toggle availability.
+* `createdAt` (TIMESTAMP)
+* `updatedAt` (TIMESTAMP)
+
+### RentalOrders
+Orders placed by Customers to rent gear items.
+* `id` (UUID, Primary Key) - Unique identifier.
+* `customerId` (UUID, Foreign Key -> Users.id) - The customer who placed the order.
+* `startDate` (DATE) - The date the rental starts.
+* `endDate` (DATE) - The date the rental ends.
+* `totalAmount` (DECIMAL(10, 2)) - Total price of the rental order.
+* `status` (ENUM('PLACED', 'CONFIRMED', 'PAID', 'PICKED_UP', 'RETURNED', 'CANCELLED')) - Order progress status.
+* `createdAt` (TIMESTAMP)
+* `updatedAt` (TIMESTAMP)
+
+### RentalItems
+Join table to support multiple gear items in a single rental order (Many-to-Many relationship helper).
+* `id` (UUID, Primary Key) - Unique identifier.
+* `rentalOrderId` (UUID, Foreign Key -> RentalOrders.id, Cascade Delete) - Associated order.
+* `gearItemId` (UUID, Foreign Key -> GearItems.id) - Associated gear item.
+* `quantity` (INT) - Number of units of this gear rented.
+* `pricePerDay` (DECIMAL(10, 2)) - Historical snapshot of the price per day at the time of booking.
+
+### Payments
+Payment transactions associated with rental orders.
+* `id` (UUID, Primary Key) - Unique identifier.
+* `rentalOrderId` (UUID, Foreign Key -> RentalOrders.id) - The order this payment is for.
+* `transactionId` (VARCHAR(100), Unique) - Transaction ID from Stripe or SSLCommerz.
+* `amount` (DECIMAL(10, 2)) - Paid amount.
+* `method` (ENUM('STRIPE', 'SSLCOMMERZ')) - Payment gateway used.
+* `status` (ENUM('PENDING', 'COMPLETED', 'FAILED')) - Payment transaction status.
+* `paidAt` (TIMESTAMP, Nullable) - Exact date/time when payment succeeded.
+* `createdAt` (TIMESTAMP)
+
+### Reviews
+Customer reviews for gear items, submitted after returning the gear.
+* `id` (UUID, Primary Key) - Unique identifier.
+* `customerId` (UUID, Foreign Key -> Users.id) - Customer who wrote the review.
+* `gearItemId` (UUID, Foreign Key -> GearItems.id) - The gear item being reviewed.
+* `rating` (INT) - Rating score from 1 to 5.
+* `comment` (TEXT) - Review feedback.
+* `createdAt` (TIMESTAMP)
+
+---
+
+## 2. Relationships & Cardinality
+
+1. **Users (Provider) ─── GearItems (1 : Many)**
+   * One Provider can list multiple `GearItems`.
+   * A `GearItem` belongs to exactly one Provider.
+   * *Foreign Key:* `GearItems.providerId` reference `Users.id`
+
+2. **Categories ─── GearItems (1 : Many)**
+   * One Category can have many `GearItems`.
+   * A `GearItem` belongs to exactly one Category.
+   * *Foreign Key:* `GearItems.categoryId` reference `Categories.id`
+
+3. **Users (Customer) ─── RentalOrders (1 : Many)**
+   * One Customer can place multiple `RentalOrders`.
+   * A `RentalOrder` is placed by exactly one Customer.
+   * *Foreign Key:* `RentalOrders.customerId` reference `Users.id`
+
+4. **RentalOrders ─── RentalItems (1 : Many)**
+   * A `RentalOrder` contains one or more `RentalItems`.
+   * *Foreign Key:* `RentalItems.rentalOrderId` reference `RentalOrders.id`
+
+5. **GearItems ─── RentalItems (1 : Many)**
+   * A `GearItem` can appear in multiple `RentalItems` across different orders.
+   * *Foreign Key:* `RentalItems.gearItemId` reference `GearItems.id`
+
+6. **RentalOrders ─── Payments (1 : Many)**
+   * An order has payment transactions. We model this as 1:Many to allow multiple payment attempts if a transaction fails (only one can succeed/complete).
+   * *Foreign Key:* `Payments.rentalOrderId` reference `RentalOrders.id`
+
+7. **Users (Customer) ─── Reviews (1 : Many)**
+   * A Customer can write multiple `Reviews`.
+   * *Foreign Key:* `Reviews.customerId` reference `Users.id`
+
+8. **GearItems ─── Reviews (1 : Many)**
+   * A `GearItem` can have multiple `Reviews` from different customers.
+   * *Foreign Key:* `Reviews.gearItemId` reference `GearItems.id`
+
+---
+
+## 3. Mermaid Entity Relationship Diagram Code
+
+```mermaid
+erDiagram
+    USERS {
+        uuid id PK
+        string name
+        string email UK
+        string password
+        enum role
+        enum status
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    CATEGORIES {
+        int id PK
+        string name UK
+        text description
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    GEAR_ITEMS {
+        uuid id PK
+        uuid providerId FK
+        int categoryId FK
+        string name
+        text description
+        decimal pricePerDay
+        string brand
+        int stock
+        string imageUrl
+        boolean isAvailable
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    RENTAL_ORDERS {
+        uuid id PK
+        uuid customerId FK
+        date startDate
+        date endDate
+        decimal totalAmount
+        enum status
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    RENTAL_ITEMS {
+        uuid id PK
+        uuid rentalOrderId FK
+        uuid gearItemId FK
+        int quantity
+        decimal pricePerDay
+    }
+
+    PAYMENTS {
+        uuid id PK
+        uuid rentalOrderId FK
+        string transactionId UK
+        decimal amount
+        enum method
+        enum status
+        timestamp paidAt
+        timestamp createdAt
+    }
+
+    REVIEWS {
+        uuid id PK
+        uuid customerId FK
+        uuid gearItemId FK
+        int rating
+        text comment
+        timestamp createdAt
+    }
+
+    %% Relationships
+    USERS ||--o{ GEAR_ITEMS : "provides"
+    CATEGORIES ||--o{ GEAR_ITEMS : "classifies"
+    USERS ||--o{ RENTAL_ORDERS : "places"
+    RENTAL_ORDERS ||--|{ RENTAL_ITEMS : "contains"
+    GEAR_ITEMS ||--o{ RENTAL_ITEMS : "ordered_in"
+    RENTAL_ORDERS ||--o{ PAYMENTS : "paid_by"
+    USERS ||--o{ REVIEWS : "writes"
+    GEAR_ITEMS ||--o{ REVIEWS : "receives"
+```

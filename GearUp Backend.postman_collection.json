@@ -1,0 +1,46 @@
+{
+  "info": {
+    "_postman_id": "53138f4d-f911-46c0-a37a-2f69b8778a3e",
+    "name": "GearUp Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "45096706",
+    "_collection_link": "https://go.postman.co/collection/45096706-53138f4d-f911-46c0-a37a-2f69b8778a3e?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"GearUp1\",\r\n  \"email\": \"gearup1@gmail.com\",\r\n  \"password\": \"GearUp@100\",\r\n  \"role\": \"PROVIDER\",\r\n  \"profilePhoto\": \"https://example.com/shop.jpg\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/users/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "users",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
